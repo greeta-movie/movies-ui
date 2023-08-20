@@ -38,11 +38,11 @@
 
 ### Step 01 - Clone repositories
 
-**https://github.com/greeta-movie/movie-api** (API Source Code and Github Docker Images Pipeline)
+**https://github.com/greeta-movie/movies-api** (API Source Code and Github Docker Images Pipeline)
 
-**https://github.com/greeta-movie/movie-infra** (Terraform Infrastructure and GitOps Pipeline)
+**https://github.com/greeta-movie/movies-infra** (Terraform Infrastructure and GitOps Pipeline)
 
-**https://github.com/greeta-movie/movie-ui** (UI Source Code and Github Docker Image Pipeline)
+**https://github.com/greeta-movie/movies-ui** (UI Source Code and Github Docker Image Pipeline)
 
 ### Step-02: Prepare Your AWS Account
 
@@ -56,29 +56,29 @@
 
 - make sure you have your own Github Account or Organization
 
-- clone movie-api and movie-infra repositories to your github profile or organization
+- clone movies-api and movies-infra repositories to your github profile or organization
 
-- In your cloned movie-api Github Repository, go to Settings -> Secrets and Variables -> Actions -> New Repository Secret and create DISPATCH_TOKEN secret with the value of your personal github token (You need to create personal token in Developer Settings and make sure you give it workflow permissions)
+- In your cloned movies-api Github Repository, go to Settings -> Secrets and Variables -> Actions -> New Repository Secret and create DISPATCH_TOKEN secret with the value of your personal github token (You need to create personal token in Developer Settings and make sure you give it workflow permissions)
 
 - if you use github organization, then you need to make github docker image packages public by default (not sure how to do it if you use github profile directly, but if github docker images are not public by default, you also need to change it in github settings)
 
 - in github organization settings, go to packages -> Package Creation -> set public as defult (skip it, if you use github profile directly, but I'm not 100% sure, please, refer to github actions docker images documentation, if you have any issues)
 
-- if you want to create your own UI docker image, you should also clone movie-ui repository (instructions for creation of docker image pipeline are similar to movie-api, but you will also need to change keycloak and api url in constants.js and provide your omdb account secret in env.local file. Please, read this article for more details: https://github.com/ivangfr/springboot-react-keycloak
+- if you want to create your own UI docker image, you should also clone movies-ui repository (instructions for creation of docker image pipeline are similar to movies-api, but you will also need to change keycloak and api url in constants.js and provide your omdb account secret in env.local file. Please, read this article for more details: https://github.com/ivangfr/springboot-react-keycloak
 
 
 ### Step-04: Prepare API Source Code and Github Actions Workflow:
 
-- go to the root directory of your cloned movie-api github repository
+- go to the root directory of your cloned movies-api github repository
 
-- Edit "**.github/workflows**" files: replace "**greeta-movie**" with the name of your github profile or organization; replace "**movie-api and movie-infra**" with the names of your cloned or forked repositories (or leave the names like this if you don't want to change the names); replace "**master**" with the name of your main branch (or leave it like this, if you don't want to change, but please, note that you would have to change default main branch name in github settings)
+- Edit "**.github/workflows**" files: replace "**greeta-movie**" with the name of your github profile or organization; replace "**movies-api and movies-infra**" with the names of your cloned or forked repositories (or leave the names like this if you don't want to change the names); replace "**master**" with the name of your main branch (or leave it like this, if you don't want to change, but please, note that you would have to change default main branch name in github settings)
 
 
 ### Step-05: Prepare Terraform Infrastructure:
 
-- go to the root directory of your cloned movie-infra github repository
+- go to the root directory of your cloned movies-infra github repository
 
-- create terraform.auto.tfvars in your movie-infra repository and provide your own aws_region and ssl_certificate_arn
+- create terraform.auto.tfvars in your movies-infra repository and provide your own aws_region and ssl_certificate_arn
 
 ```
 aws_region = "eu-central-1"
@@ -88,9 +88,9 @@ cluster_name = "movie-cluster"
 ssl_certificate_arn = "arn:aws:acm:eu-central-1:your-certificate-arn"
 ```
 
-- replace "greeta.net" in terraform files of movie-infra repository, with the name of your domain (please, use search to find all files, where "greeta.net" is used)
+- replace "greeta.net" in terraform files of movies-infra repository, with the name of your domain (please, use search to find all files, where "greeta.net" is used)
 
-- Commit your movie-infra changes to github (don't worry, terraform.auto.tfvars is in .gitignore and it won't be committed)
+- Commit your movies-infra changes to github (don't worry, terraform.auto.tfvars is in .gitignore and it won't be committed)
 ```
 git add .
 git commit -m "your comment"
@@ -99,25 +99,25 @@ git push origin
 
 ### Step-06: Build Docker Images with Github Actions
 
-- go to the root directory of your cloned movie-api github repository
+- go to the root directory of your cloned movies-api github repository
 
-- Commit your movie-api changes to github (it should trigger creation of docker images pipeline and then movie-infra pipeline)
+- Commit your movies-api changes to github (it should trigger creation of docker images pipeline and then movies-infra pipeline)
 ```
 git add .
 git commit -m "your comment"
 git push origin
 ````
 
-- wait until movie-api pipeline in github is finished and movie-infra pipeline is started
+- wait until movies-api pipeline in github is finished and movies-infra pipeline is started
   
-- movie-infra pipeline automatically changes docker image versions to the versions of docker images, created in movie-api pipeline and pushes new docker image versions to movie-infra repository
+- movies-infra pipeline automatically changes docker image versions to the versions of docker images, created in movies-api pipeline and pushes new docker image versions to movies-infra repository
 
 
 ### Step-07: Deploy Infrastructure to AWS with Terraform:
 
-- go to the root directory of your cloned movie-infra github repository
+- go to the root directory of your cloned movies-infra github repository
 
-- pull changes from movie-infra repository and run terraform
+- pull changes from movies-infra repository and run terraform
 
 ```
 git pull
@@ -143,7 +143,7 @@ kubectl get secret --namespace observability-stack loki-stack-grafana -o jsonpat
 - After successfull authorization, try any REST API endpoint
 - Go to https://grafana.yourdomain.com and find the logs and traces, generated by the endpoints (Find "Explore" menu, then go to "Loki", select "app" and then select the name of the microservice and then "Run Query")
 
-- as a bonus, you can clone "movie-ui" repository and test "movie" microservice UI with keycloak authorization and redirect login page (see https://github.com/ivangfr/springboot-react-keycloak for more details)
+- as a bonus, you can clone "movies-ui" repository and test "movie" microservice UI with keycloak authorization and redirect login page (see https://github.com/ivangfr/springboot-react-keycloak for more details)
 
 - go to "**https://movie.yourdomain.com**" and login with admin/admin (full access) or user/user (read-only access) (see https://github.com/ivangfr/springboot-react-keycloak for more details)
 
